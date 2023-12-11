@@ -61,8 +61,11 @@ data class LineWithBreaks(val leftLineLength: Int, val maxInnerLineLength: Int, 
     LineLengthMetric()
 
 fun Rope<LineMetrics>.getLines(from: Int, to: Int): String {
-    return this.slice(getIndexOfKthLine(from), getIndexOfKthLine(to)).toString()
+    return getLinesRope(from, to).toString()
 }
+
+fun Rope<LineMetrics>.getLinesRope(from: Int, to: Int): Rope<LineMetrics> =
+    slice(getIndexOfKthLine(from), getIndexOfKthLine(to))
 
 private fun Rope<LineMetrics>.getIndexOfKthLine(k: Int): Int {
     if (k == 0) return 0
@@ -97,3 +100,5 @@ val Rope<LineMetrics>.maxLineLength: Int
         is LineWithBreaks -> maxOf(maxLength.leftLineLength, maxLength.maxInnerLineLength, maxLength.rightLineLength)
         is LineWithoutBreaks -> maxLength.length
     }
+
+fun Rope<LineMetrics>.lineLength(line: Int) = getLinesRope(line, line + 1).maxLineLength
