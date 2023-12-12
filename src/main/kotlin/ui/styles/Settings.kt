@@ -7,4 +7,5 @@ import androidx.compose.ui.unit.sp
 
 class Settings {
     var fontSize by mutableStateOf(13.sp)
+    var fontFamily by mutableStateOf(Fonts.jetbrainsMono())
 }
