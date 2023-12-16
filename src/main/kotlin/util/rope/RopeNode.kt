@@ -9,7 +9,7 @@ internal interface RopeNode<Metrics> {
     fun slice(startIndex: Int, endIndex: Int): RopeNode<Metrics>
     operator fun get(index: Int): Char
 
-    fun delete(start: Int, length: Int): RopeNode<Metrics>
+    fun delete(startIndex: Int, endIndex: Int): RopeNode<Metrics>
     fun split(idx: Int): Pair<RopeNode<Metrics>, RopeNode<Metrics>>
     fun depth(): Int
 

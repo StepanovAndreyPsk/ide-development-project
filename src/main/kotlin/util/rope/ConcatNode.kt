@@ -13,9 +13,9 @@ internal class ConcatNode<Metrics>(val left: RopeNode<Metrics>,
 
     override val metrics: Metrics by lazy { metricsCalculator.joinMetrics(left.metrics, right.metrics) }
 
-    override fun delete(start: Int, length: Int): RopeNode<Metrics> {
-        val (left, _) = split(start)
-        val (_, right) = split(start + length)
+    override fun delete(startIndex: Int, endIndex: Int): RopeNode<Metrics> {
+        val (left, _) = split(startIndex)
+        val (_, right) = split(endIndex)
         return rebalance(ConcatNode(left, right, metricsCalculator))
     }
 

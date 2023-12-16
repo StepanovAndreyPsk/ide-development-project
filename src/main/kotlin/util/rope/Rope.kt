@@ -45,6 +45,8 @@ class Rope<Metrics> {
         )
     }
 
+    fun insert(index: Int, char: Char): Rope<Metrics> = insert(index, char.toString())
+
     fun prepend(sequence: CharSequence): Rope<Metrics> {
         val newNode = concat(LeafNode(sequence, base.metricsCalculator), base)
         return Rope(newNode)
@@ -55,7 +57,7 @@ class Rope<Metrics> {
         return Rope(newNode)
     }
 
-    fun delete(start: Int, end: Int): Rope<Metrics> {
-        return Rope(base.delete(start, end - start))
+    fun delete(startIndex: Int, endIndex: Int): Rope<Metrics> {
+        return Rope(base.delete(startIndex, endIndex))
     }
 }

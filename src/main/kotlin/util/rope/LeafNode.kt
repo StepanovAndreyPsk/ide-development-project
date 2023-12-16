@@ -10,8 +10,8 @@ internal class LeafNode<Metrics>(
 
     override val metrics: Metrics by lazy { metricsCalculator.getMetrics(charSequence) }
 
-    override fun delete(start: Int, length: Int): RopeNode<Metrics> {
-        return LeafNode(charSequence.removeRange(start, start + length), metricsCalculator)
+    override fun delete(startIndex: Int, endIndex: Int): RopeNode<Metrics> {
+        return LeafNode(charSequence.removeRange(startIndex, endIndex), metricsCalculator)
     }
 
     override fun split(idx: Int): Pair<RopeNode<Metrics>, RopeNode<Metrics>> {
