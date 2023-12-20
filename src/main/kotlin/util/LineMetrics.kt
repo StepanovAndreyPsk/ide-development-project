@@ -67,7 +67,7 @@ fun Rope<LineMetrics>.getLines(from: Int, to: Int): String {
 fun Rope<LineMetrics>.getLinesRope(from: Int, to: Int): Rope<LineMetrics> =
     slice(getIndexOfKthLine(from), getIndexOfKthLine(to))
 
-private fun Rope<LineMetrics>.getIndexOfKthLine(k: Int): Int {
+fun Rope<LineMetrics>.getIndexOfKthLine(k: Int): Int {
     if (k == 0) return 0
 
     var index = 0
@@ -84,7 +84,7 @@ private fun Rope<LineMetrics>.getIndexOfKthLine(k: Int): Int {
     }
     val charSequence = (currentNode as LeafNode).charSequence
 
-    var start = 0
+    var start = -1
     for (i in lineBreaks until k) {
         start = charSequence.indexOf('\n', start + 1)
         if (start == -1) return index + charSequence.length
