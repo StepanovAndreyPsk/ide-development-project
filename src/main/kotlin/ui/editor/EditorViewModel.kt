@@ -180,7 +180,7 @@ private fun DrawScope.drawSelection(editorState: EditorState) {
         val (x, y) = editorState.codeToViewport(endPosition)
         drawRect(
             topLeft = Offset(EDITOR_TEXT_OFFSET * textSize.width, y),
-            size = Size(x, textSize.height),
+            size = Size(x - EDITOR_TEXT_OFFSET * textSize.width, textSize.height),
             color = Color.Blue,
             alpha = 0.3f
         )
