@@ -55,7 +55,7 @@ internal data class EditorState(
     val canvasSize: MutableState<IntSize>,
     val cursorPosition: MutableState<CursorPosition>,
     val isCursorVisible: MutableState<Pair<Boolean, Int>>,
-    val rope: MutableState<Rope<LineMetrics>>, // TODO: undo
+    val rope: MutableState<Rope<LineMetrics>>,
     val selectionStart: MutableState<CodePosition?>,
     val textSize: Size,
 )
@@ -95,7 +95,7 @@ fun BoxScope.EditorView(model: Editor, settings: Settings) = key(model) {
         editorState.rerenderText(renderedText, settings.fontSettings, textMeasurer, previousRope)
     }
 
-    LaunchedEffect(editorState.isCursorVisible.value) { // TODO: documentation explicitly tells not to do that
+    LaunchedEffect(editorState.isCursorVisible.value) {
         val time = editorState.isCursorVisible.value.second
         delay(500)
         editorState.isCursorVisible.value.takeIf { it.second == time }?.let {

@@ -26,7 +26,7 @@ internal fun Modifier.pointerInput(editorState: EditorState): Modifier {
             cursorPosition.value = editorState.setCursorByCodePosition(offset)
             editorState.resetCursorBlinking()
         })
-    }.pointerInput(Unit) { // TODO: selection
+    }.pointerInput(Unit) {
         detectDragGestures(
             onDragStart = { offset ->
                 oldDragOffset = offset
@@ -238,7 +238,7 @@ private fun EditorState.copySelection(clipboardManager: ClipboardManager) {
     val endIndex = currentRope.indexOf(endPosition)
 
     val text = currentRope.slice(startIndex, endIndex).toString()
-    clipboardManager.setText(AnnotatedString((text))) // TODO: copy with annotations when we have them
+    clipboardManager.setText(AnnotatedString((text)))
 }
 
 private fun EditorState.paste(clipboardManager: ClipboardManager) {
