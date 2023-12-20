@@ -186,7 +186,17 @@ internal fun Modifier.keyboardInput(editorState: EditorState, clipboardManager: 
                     || (keyEvent.isCtrlPressed && !keyEvent.isCtrlPressed && !keyEvent.isAltPressed && !keyEvent.isShiftPressed)
                 ) {
                     editorState.deleteSelection()
+                    editorState.clearSelection()
                     editorState.paste(clipboardManager)
+                }
+            }
+
+            Key.X -> {
+                if ((keyEvent.isMetaPressed && !keyEvent.isCtrlPressed && !keyEvent.isAltPressed && !keyEvent.isShiftPressed)
+                    || (keyEvent.isCtrlPressed && !keyEvent.isCtrlPressed && !keyEvent.isAltPressed && !keyEvent.isShiftPressed)
+                ) {
+                    editorState.copySelection(clipboardManager)
+                    editorState.deleteSelection()
                 }
             }
 
