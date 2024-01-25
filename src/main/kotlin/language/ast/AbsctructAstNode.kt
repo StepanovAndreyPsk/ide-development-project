@@ -2,7 +2,6 @@ package language.ast
 import language.lexer.ConcreteToken
 import language.lexer.Location
 import language.lexer.Token
-import language.structures.ASTNode
 import kotlin.reflect.KClass
 
 // Abstract Node

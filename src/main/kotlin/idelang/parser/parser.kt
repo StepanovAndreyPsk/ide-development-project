@@ -6,7 +6,7 @@ import idelang.lexer.AScriptLexer
 import language.structures.ASTBuilder
 
 
-fun createProgram(input: CharSequence) : Result<Program> {
+fun buildAst(input: CharSequence) : Result<Program> {
     val tokens = AScriptLexer().tokenize(input)
     println(tokens)
     return ASTBuilder(AProgram(), tokens).build()
@@ -24,7 +24,7 @@ fun main() {
         }
         """
 
-    createProgram(myProgramm).onSuccess {
+    buildAst(myProgramm).onSuccess {
         println(it)
     }.onFailure {
         println(it)
