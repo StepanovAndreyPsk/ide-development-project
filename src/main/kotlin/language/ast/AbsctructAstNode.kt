@@ -65,7 +65,6 @@ infix fun ANode.List.AndList.or(node: ANode): ANode.List.OrList {
     return ANode.List.OrList(mutableListOf(this, node))
 }
 
-
 infix fun ANode.List.Repeatable.and(node: ANode): ANode.List.AndList {
     return ANode.List.AndList(mutableListOf(this, node))
 }

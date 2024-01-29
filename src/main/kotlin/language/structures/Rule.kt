@@ -27,7 +27,7 @@ interface Rule<T : ASTNode> {
 }
 
 
-class ASTBuilder<T : ASTNode>(private val rule: Rule<T>, private val tokens: List<ConcreteToken<Token>>) {
+class ASTBuilder<T : ASTNode>(private val rule: Rule<T>, private val tokens: List<ConcreteToken<out Token>>) {
     private var curPos = 0
 
     fun build(): Result<T> {
@@ -44,7 +44,6 @@ class ASTBuilder<T : ASTNode>(private val rule: Rule<T>, private val tokens: Lis
 
     private fun processRule(rule: Rule<*>): Result<ANode.Terminal.ParamResult<*>> {
         val start = curPos
-        val startOffset = currentOffset()
         val result = processNodes(rule.pattern)
 
         return result.fold(
@@ -191,7 +190,7 @@ class ASTBuilder<T : ASTNode>(private val rule: Rule<T>, private val tokens: Lis
     }
 
 
-    private fun peek(): ConcreteToken<Token>? = tokens.getOrNull(curPos)
+    private fun peek(): ConcreteToken<out Token>? = tokens.getOrNull(curPos)
 
     private fun processTerminal(pattern: ANode.Terminal): Result<List<ANode>> {
         val start = curPos

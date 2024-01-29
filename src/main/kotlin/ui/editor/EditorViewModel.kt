@@ -28,6 +28,9 @@ import androidx.compose.ui.text.platform.FontLoadResult
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import idelang.highlighting.HighlightingBuilder
+import idelang.highlighting.HighlightingBuilders
+import ui.editor.highlightling.Highlighter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -49,6 +52,10 @@ object EditorView {
     val log: Logger = Logger.getLogger(EditorView::class.java.name)
 }
 
+object HighlightingLogger {
+    val log: Logger = Logger.getLogger(HighlightingBuilder::class.java.name)
+}
+
 internal data class EditorState(
     val verticalScrollOffset: MutableState<Float>,
     val horizontalScrollOffset: MutableState<Float>,
@@ -58,6 +65,8 @@ internal data class EditorState(
     val rope: MutableState<Rope<LineMetrics>>,
     val selectionStart: MutableState<CodePosition?>,
     val textSize: Size,
+    val file: MutableState<File>,
+    var highlighter: Highlighter?
 )
 
 @Composable
@@ -73,9 +82,11 @@ fun BoxScope.EditorView(model: Editor, settings: Settings) = key(model) {
         isCursorVisible = remember { mutableStateOf(true to 0) },
         rope = remember { mutableStateOf(model.rope) },
         selectionStart = remember { mutableStateOf(null) },
+        file = remember { mutableStateOf(model.file) },
         textSize = remember(settings.fontSettings) {
             getTextSize(fontFamilyResolver, textMeasurer, settings.fontSettings)
-        }
+        },
+        highlighter = null
     )
 
 
@@ -84,15 +95,26 @@ fun BoxScope.EditorView(model: Editor, settings: Settings) = key(model) {
 
     val renderedText = remember { mutableStateOf<RenderedText?>(null) }
     val previousRope = remember { mutableStateOf<Rope<LineMetrics>?>(null) }
+    val previousFile = remember { mutableStateOf(editorState.file.value) }
+
     LaunchedEffect(
         editorState.verticalScrollOffset.value,
         editorState.canvasSize.value,
         editorState.rope.value,
         editorState.textSize,
-        settings.fontSettings
+        settings.fontSettings,
+        settings.fontSettings,
+        editorState.file.value
     ) {
-        println("recompose")
-        editorState.rerenderText(renderedText, settings.fontSettings, textMeasurer, previousRope)
+        withContext(Dispatchers.Default) {
+            val needToUpdateHighlighting = editorState.rope.value != previousRope.value || previousFile.value != editorState.file.value
+            editorState.rerenderText(renderedText, settings.fontSettings, textMeasurer, previousRope, editorState.highlighter)
+
+            if (needToUpdateHighlighting) {
+                editorState.highlighter = calculateHighlighting(editorState.file.value, editorState.rope.value)
+                editorState.rerenderText(renderedText, settings.fontSettings, textMeasurer, previousRope, editorState.highlighter, forceUpdate = true)
+            }
+        }
     }
 
     LaunchedEffect(editorState.isCursorVisible.value) {
@@ -140,6 +162,16 @@ fun BoxScope.EditorView(model: Editor, settings: Settings) = key(model) {
         }
 
         drawGutter(settings.fontSettings, textSize, verticalOffset, textMeasurer, editorState.rope.value.lineCount)
+
+    // TODO : add navigation tool
+
+//        val cursorPosition = editorState.cursorPosition.value
+//        val x = cursorPosition.codePosition.x
+//        val y = cursorPosition.codePosition.y
+//        val offset = editorState.rope.value.curOffset(cursorPosition.codePosition)
+//
+//        val pos = renderedText.value?.to ?: 0
+//        drawText(textMeasurer, buildAnnotatedString { this.pushStyle(SpanStyle(Color(0xFFEBC88E))); this.append("x: $x, y: $y | Offset: $offset")}, topLeft = editorState.codeToViewport(CodePosition(0, pos)))
     }
 
     LaunchedEffect(Unit) {
@@ -295,12 +327,28 @@ private fun EditorState.initVerticalScrollState() = rememberScrollableState { de
     scrollConsumed
 }
 
+private fun calculateHighlighting(file: File, rope: Rope<LineMetrics>?) : Highlighter? {
+    val highlightingBuilder = HighlightingBuilders.firstOrNull { builder -> builder.language.fileExtension == file.extension } ?: return null
+    try {
+        val tokens = highlightingBuilder.tokenize(rope.toString())
+        val ast = highlightingBuilder.buildAst(tokens).getOrThrow()
+        val htokens = highlightingBuilder.buildHighlighting(ast, tokens)
+        val newHighlighter = Highlighter(htokens)
+        return newHighlighter
+    } catch (e: Throwable) {
+        HighlightingLogger.log.info("Error on Highlighting $e")
+        return null
+    }
+}
+
 private suspend fun EditorState.rerenderText(
     renderedText: MutableState<RenderedText?>,
     settings: FontSettings,
     textMeasurer: TextMeasurer,
-    previousRope: MutableState<Rope<LineMetrics>?>
-): Unit = withContext(Dispatchers.Default) {
+    previousRope: MutableState<Rope<LineMetrics>?>,
+    highlighter: Highlighter?,
+    forceUpdate: Boolean = false
+): Unit {
     val text = renderedText.value
     val verticalOffset = verticalScrollOffset.value
     val canvasSize = canvasSize.value
@@ -311,6 +359,7 @@ private suspend fun EditorState.rerenderText(
                 && verticalOffset - text.from * textSize.height < canvasSize.height / 2)
         || (text.to < rope.value.lineCount
                 && text.to * textSize.height - verticalOffset - canvasSize.height < canvasSize.height / 2)
+        || forceUpdate
     ) {
         previousRope.value = rope.value
         val from = floor((verticalOffset - canvasSize.height) / textSize.height).toInt()
@@ -318,7 +367,7 @@ private suspend fun EditorState.rerenderText(
         val to = ceil((verticalOffset + 2 * canvasSize.height) / textSize.height).toInt()
             .coerceAtMost(rope.value.lineCount)
         EditorView.log.info("Relayout from $from to $to")
-        renderedText.value = textMeasurer.layoutLines(rope.value, from, to, settings)
+        renderedText.value = textMeasurer.layoutLines(rope.value, from, to, settings, highlighter)
         // in case text size has changed we want to maintain correct verticalScrollOffset
         verticalScrollOffset.value = coerceVerticalOffset(verticalScrollOffset.value)
     }
@@ -382,13 +431,23 @@ private fun TextMeasurer.layoutLines(
     rope: Rope<LineMetrics>,
     from: Int,
     to: Int,
-    settings: FontSettings
+    settings: FontSettings,
+    curHighlighter: Highlighter?
 ): RenderedText {
     val builder = AnnotatedString.Builder()
+
+    val startOffset = rope.getIndexOfKthLine(from)
+
+    val endOffset = maxOf(0, rope.getIndexOfKthLine(to))
+    val styles = curHighlighter?.highlightRange(startOffset, endOffset)
     val text = rope.getLines(from, to)
 
     builder.append(text)
     builder.addStyle(AppTheme.code.simple, 0, text.length)
+
+    styles?.forEach {
+        builder.addStyle(it.style, it.startOffset, it.endOffset)
+    }
 
     val textLayoutResult = measure(
         builder.toAnnotatedString(),
@@ -399,3 +458,7 @@ private fun TextMeasurer.layoutLines(
 
 private fun getTextStyle(settings: FontSettings) =
     TextStyle(fontFamily = settings.fontFamily, fontSize = settings.fontSize)
+
+internal fun Rope<LineMetrics>.curOffset(pos: CodePosition): Int {
+    return this.getIndexOfKthLine(pos.y) + pos.x
+}

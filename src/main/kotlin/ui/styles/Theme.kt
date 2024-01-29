@@ -27,6 +27,9 @@ object AppTheme {
         val keyword: SpanStyle = SpanStyle(Color(0xFFCC7832)),
         val punctuation: SpanStyle = SpanStyle(Color(0xFFA1C17E)),
         val annotation: SpanStyle = SpanStyle(Color(0xFFBBB529)),
-        val comment: SpanStyle = SpanStyle(Color(0xFF808080))
+        val comment: SpanStyle = SpanStyle(Color(0xFF808080)),
+        val blockBrackets: SpanStyle = SpanStyle(Color(0xFFEBC88E)),
+        val symbolName: SpanStyle = SpanStyle(Color(0xFFAF9CFF)),
+        val type: SpanStyle = SpanStyle(Color(0xFF79ADE3))
     )
 }

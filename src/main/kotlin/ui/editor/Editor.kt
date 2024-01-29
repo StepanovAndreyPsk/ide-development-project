@@ -5,6 +5,7 @@ import util.LineMetrics
 import util.rope.Rope
 
 class Editor(
+    val file: File,
     val fileName: String,
     val rope: Rope<LineMetrics>,
     private val selectedEditor: SelectedEditor,
@@ -22,4 +23,4 @@ class Editor(
     }
 }
 
-fun Editor(file: File, selection: SelectedEditor, close: (Editor) -> Unit) = Editor(file.name, file.read(), selection, close)
+fun Editor(file: File, selection: SelectedEditor, close: (Editor) -> Unit) = Editor(file, file.name, file.read(), selection, close)

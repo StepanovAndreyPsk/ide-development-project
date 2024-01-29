@@ -7,9 +7,9 @@ import language.lexer.Tokenizer
 
 class SymbolParser(private val tokens: List<SymbolToken>): TokenParser<SymbolToken> {
     override fun Tokenizer.parse(): SymbolToken? {
-        for (token in tokens) {
-            val start = this.curIndex
+        val start = this.curIndex
 
+        for (token in tokens) {
             val text = StringBuilder()
             var i = 0
 

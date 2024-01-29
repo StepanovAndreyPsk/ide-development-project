@@ -108,7 +108,7 @@ sealed class Stmt: ASTNode {
 
     class ProcCall(
         val symbol: Expr.SymbolName,
-        val arguments: List<Expr>,
+        val arguments: Arguments,
         override val location: Location
     ) : Stmt() {
         override fun <T, R> accept(visitor: AstVisitor<T, R>, context: T) : R {
@@ -169,13 +169,13 @@ class Factor(val expr: Expr, override val location: Location) : ASTNode {
     }
 }
 
-class Arguments(val arguments: Argument?, override val location: Location): ASTNode {
+class Arguments(val arguments: List<Argument>, override val location: Location): ASTNode {
     override fun <T, R> accept(visitor: AstVisitor<T, R>, context: T) : R {
         return visitor.visit(this, context)
     }
 }
 
-class Argument(val exprs: List<Expr>, override val location: Location): ASTNode {
+class Argument(val expr: Expr, override val location: Location): ASTNode {
     override fun <T, R> accept(visitor: AstVisitor<T, R>, context: T) : R {
         return visitor.visit(this, context)
     }
@@ -219,7 +219,7 @@ sealed class Expr: ASTNode {
 
     class FuncCall(
         val symbolName: SymbolName,
-        val arguments: List<Expr>,
+        val arguments: Arguments,
         override val location: Location
     ) : Expr() {
         override fun <T, R> accept(visitor: AstVisitor<T, R>, context: T) : R {
