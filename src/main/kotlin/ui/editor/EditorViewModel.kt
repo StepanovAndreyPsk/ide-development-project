@@ -1,13 +1,8 @@
 package ui.editor
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.HorizontalScrollbar
-import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.*
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.absolutePadding
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.v2.ScrollbarAdapter
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.runtime.*
@@ -162,16 +157,6 @@ fun BoxScope.EditorView(model: Editor, settings: Settings) = key(model) {
         }
 
         drawGutter(settings.fontSettings, textSize, verticalOffset, textMeasurer, editorState.rope.value.lineCount)
-
-    // TODO : add navigation tool
-
-//        val cursorPosition = editorState.cursorPosition.value
-//        val x = cursorPosition.codePosition.x
-//        val y = cursorPosition.codePosition.y
-//        val offset = editorState.rope.value.curOffset(cursorPosition.codePosition)
-//
-//        val pos = renderedText.value?.to ?: 0
-//        drawText(textMeasurer, buildAnnotatedString { this.pushStyle(SpanStyle(Color(0xFFEBC88E))); this.append("x: $x, y: $y | Offset: $offset")}, topLeft = editorState.codeToViewport(CodePosition(0, pos)))
     }
 
     LaunchedEffect(Unit) {
@@ -336,7 +321,7 @@ private fun calculateHighlighting(file: File, rope: Rope<LineMetrics>?) : Highli
         val newHighlighter = Highlighter(htokens)
         return newHighlighter
     } catch (e: Throwable) {
-        HighlightingLogger.log.info("Error on Highlighting $e")
+        HighlightingLogger.log.info("Highlighting error: $e")
         return null
     }
 }

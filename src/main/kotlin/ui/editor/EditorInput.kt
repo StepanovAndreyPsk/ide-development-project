@@ -11,10 +11,16 @@ import androidx.compose.ui.input.pointer.pointerInput
 import java.awt.event.KeyEvent as AwtKeyEvent
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import idelang.highlighting.HighlightingBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import util.lineCount
 import util.lineLength
+import java.io.File
+import java.util.logging.Logger
 import kotlin.math.min
-
 @Composable
 internal fun Modifier.pointerInput(editorState: EditorState): Modifier {
     var oldDragOffset by remember { mutableStateOf(Offset(0f, 0f)) }
@@ -195,6 +201,26 @@ internal fun Modifier.keyboardInput(editorState: EditorState, clipboardManager: 
                 ) {
                     editorState.copySelection(clipboardManager)
                     editorState.deleteSelection()
+                }
+            }
+
+            Key.S -> {
+                if ((keyEvent.isMetaPressed && !keyEvent.isCtrlPressed && !keyEvent.isAltPressed && !keyEvent.isShiftPressed)
+                    || (keyEvent.isCtrlPressed && !keyEvent.isCtrlPressed && !keyEvent.isAltPressed && !keyEvent.isShiftPressed)
+                ) {
+                    GlobalScope.launch(Dispatchers.Default) {
+                        val filename = editorState.file.value.absolutePath
+                        val file = File(filename)
+                        if (file.exists() && file.canWrite()) {
+                            file.writeText(editorState.rope.value.toString())
+                            println("file successfully saved")
+                        } else if (!file.exists()) {
+                            file.writeText(editorState.rope.value.toString())
+                            println("file successfully created and saved")
+                        } else {
+                            println("Error. Could not write to file")
+                        }
+                    }
                 }
             }
 

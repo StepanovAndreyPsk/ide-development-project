@@ -12,6 +12,7 @@ interface File {
     val isDirectory: Boolean
     val children: List<File>
     val hasChildren: Boolean
+    val absolutePath: String
     val extension: String?
 
     fun read(): Rope<LineMetrics>
@@ -35,6 +36,9 @@ fun java.io.File.toProjectFile(): File = object : File {
 
     override val hasChildren: Boolean
         get() = isDirectory && numberOfFiles > 0
+
+    override val absolutePath: String
+        get() = this@toProjectFile.absolutePath
 
     override val extension: String?
         get() = this@toProjectFile.extension.ifEmpty { null }
