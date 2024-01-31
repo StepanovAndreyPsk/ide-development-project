@@ -2,12 +2,12 @@ package idelang.parser
 
 import idelang.ast.Program
 import idelang.grammar.AProgram
-import idelang.lexer.AScriptLexer
+import idelang.lexer.IdeLexer
 import language.structures.ASTBuilder
 
 
 fun buildAst(input: CharSequence) : Result<Program> {
-    val tokens = AScriptLexer().tokenize(input)
+    val tokens = IdeLexer().tokenize(input)
     println(tokens)
     return ASTBuilder(AProgram(), tokens).build()
 }

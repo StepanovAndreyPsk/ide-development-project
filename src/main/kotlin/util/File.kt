@@ -5,7 +5,8 @@ import java.io.RandomAccessFile
 import java.nio.channels.FileChannel
 import java.nio.charset.StandardCharsets
 
-val HomeFolder: File get() = java.io.File(System.getProperty("user.home")).toProjectFile()
+//val HomeFolder: File get() = java.io.File(System.getProperty("user.home")).toProjectFile()
+val HomeFolder: File get() = java.io.File("/Users/andreystepanov/ProjectFolder").toProjectFile()
 
 interface File {
     val name: String

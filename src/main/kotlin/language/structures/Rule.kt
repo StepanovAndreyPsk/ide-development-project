@@ -7,7 +7,6 @@ import language.lexer.ConcreteToken
 import language.lexer.Location
 import language.lexer.Token
 
-
 fun <T : ANode> T.asParam(isParameter: Boolean = true): T {
     this.isParameter = isParameter
     return this
@@ -15,8 +14,8 @@ fun <T : ANode> T.asParam(isParameter: Boolean = true): T {
 
 // extract rules and build ASTNode by parameters
 interface Rule<T : ASTNode> {
-    abstract val pattern: ANode
-    abstract fun onMatch(location: Location, vararg args: Any): Result<T>
+    val pattern: ANode
+    fun onMatch(location: Location, vararg args: Any): Result<T>
 
     fun onMatchWithParamResult(location: Location, vararg args: Any): Result<ANode.Terminal.ParamResult<T>> {
         return onMatch(location, *args).fold(
@@ -58,7 +57,6 @@ class ASTBuilder<T : ASTNode>(private val rule: Rule<T>, private val tokens: Lis
             }
         )
     }
-
 
     private fun processNodes(node: ANode): Result<List<ANode>> {
         return when (node) {

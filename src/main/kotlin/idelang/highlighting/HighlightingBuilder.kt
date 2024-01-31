@@ -12,4 +12,4 @@ abstract class HighlightingBuilder<T: ASTNode>(val language: Language) {
     abstract fun buildHighlighting(ast: ASTNode, tokens: List<ConcreteToken<out Token>>): List<HToken>
 }
 
-val HighlightingBuilders = listOf<HighlightingBuilder<out ASTNode>>(AScriptHighlightingBuilder)
+val HighlightingBuilders = listOf<HighlightingBuilder<out ASTNode>>(IdeHighlightingBuilder)
